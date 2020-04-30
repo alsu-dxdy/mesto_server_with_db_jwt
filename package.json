@@ -1,0 +1,31 @@
+{
+  "name": "mesto_server_with_db",
+  "version": "0.0.1",
+  "description": "creating server with db, without authentication",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alsu-dxdy/mesto_server_with_db.git"
+  },
+  "author": "Alsu A",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alsu-dxdy/mesto_server_with_db/issues"
+  },
+  "homepage": "https://github.com/alsu-dxdy/mesto_server_with_db#readme",
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2",
+    "nodemon": "^2.0.2"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.9.10",
+    "validator": "^13.0.0"
+  }
+}
