@@ -80,7 +80,7 @@ module.exports.login = (req, res) => {
     .then((newUser) => {
       //не нашелся - отклоняем промис
       if (!newUser) {
-        return Promise.reject(new Error('121315Неправильные почта или пароль'));
+        return Promise.reject(new Error('Неправильные почта или пароль'));
       }
       //нашелся - сравниваем хеши
       return bcrypt.compare(password, newUser.password)
@@ -97,6 +97,8 @@ module.exports.login = (req, res) => {
         });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      res
+        .status(401)
+        .send({ message: err.message });
     });
 };

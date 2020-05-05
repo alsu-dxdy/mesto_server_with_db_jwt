@@ -1,7 +1,7 @@
 {
-  "name": "mesto_server_with_db",
-  "version": "0.0.1",
-  "description": "creating server with db, without authentication",
+  "name": "mesto_server_with_db_jwt",
+  "version": "0.0.2",
+  "description": "creating server with db and authentication",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alsu-dxdy/mesto_server_with_db.git"
+    "url": "git+https://github.com/alsu-dxdy/mesto_server_with_db_jwt.git"
   },
   "author": "Alsu A",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/alsu-dxdy/mesto_server_with_db/issues"
+    "url": "https://github.com/alsu-dxdy/mesto_server_with_db_jwt/issues"
   },
-  "homepage": "https://github.com/alsu-dxdy/mesto_server_with_db#readme",
+  "homepage": "https://github.com/alsu-dxdy/mesto_server_with_db_jwt#readme",
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
