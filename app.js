@@ -44,10 +44,14 @@ app.listen(PORT, () => {
 });
 
 app.use((err, req, res, next) => {
-  const status = err.status || 500;
+  let status = err.status || 500;
   let { message } = err;
   if (err.name === 'ValidationError') {
     return res.status(400).send('ValidationError');
+  }
+
+  if (err.message.includes("owner of this card")) {
+    status = 403;
   }
 
   if (status === 500) {

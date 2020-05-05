@@ -12,13 +12,14 @@ module.exports.getCardById = (req, res, next) => {
     // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
-        return next({ status: 404, message: 'Card with ID ${req.params.cardId} does not exist' });
+        return next({ status: 404, message: `Card with ID ${req.params.cardId} does not exist` });
       }
       res.json(card);
     })
     .catch((err) => {
       next(err);
     });
+  //  next();
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -40,32 +41,30 @@ module.exports.removeCardById = (req, res, next) => {
   Card
     .findById(req.params.cardId)
     .then((card) => {
-      if (card) {
-        const { owner } = card;
-        return owner;
+      if (!card) {
+        // если карта не нашлась
+        return Promise.reject(
+          new Error(`Card with ID ${req.params.cardId} does not exist`)
+        );
       }
-      // если карта не нашлась
-      //return next({ status: 404, message: 'Card with ID ${req.params.cardId} does not exist' });
-      return Promise.reject(
-        new Error(`Карточки с id: ${req.params.cardId} не существует`),
-      );
+      const { owner } = card;
+      return owner;
     })
     .then((owner) => {
       if (req.user._id === owner.toString()) {
         return Card.findByIdAndRemove(req.params.cardId);
       }
-      // если владельцы не совпали
+      // если владельцы не совпали по гороскопу
       return Promise.reject(
-        new Error('Чтобы удалить карточку,вам необходимо быть её владельцем.'),
+        new Error('You are not owner of this card, therefore you can not delete this card')
       );
     })
     .then(() => {
-      res.send('Card with id: ${req.params.cardId} is deleted');
+      res.send(`Card with ID ${req.params.cardId} is deleted`);
     })
-    .catch((err) => res.status(500).send({ message: err.message, data: 123 }));
-  /* .catch((err) => {
-     next(err);
-   });*/
+    .catch((err) => {
+      next(err);
+    });
 };
 
 // eslint-disable-next-line no-unused-vars
