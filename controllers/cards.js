@@ -12,7 +12,7 @@ module.exports.getCardById = (req, res, next) => {
     // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
-        return next({ status: 404, message: 'Card with this ID does not exist' });
+        return next({ status: 404, message: 'Card with ID ${req.params.cardId} does not exist' });
       }
       res.json(card);
     })
@@ -37,17 +37,35 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.removeCardById = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    // eslint-disable-next-line consistent-return
+  Card
+    .findById(req.params.cardId)
     .then((card) => {
-      if (!card) {
-        return next({ status: 404, message: 'Card with this ID does not exist' });
+      if (card) {
+        const { owner } = card;
+        return owner;
       }
-      res.send('Card is deleted');
+      // если карта не нашлась
+      //return next({ status: 404, message: 'Card with ID ${req.params.cardId} does not exist' });
+      return Promise.reject(
+        new Error(`Карточки с id: ${req.params.cardId} не существует`),
+      );
     })
-    .catch((err) => {
-      next(err);
-    });
+    .then((owner) => {
+      if (req.user._id === owner.toString()) {
+        return Card.findByIdAndRemove(req.params.cardId);
+      }
+      // если владельцы не совпали
+      return Promise.reject(
+        new Error('Чтобы удалить карточку,вам необходимо быть её владельцем.'),
+      );
+    })
+    .then(() => {
+      res.send('Card with id: ${req.params.cardId} is deleted');
+    })
+    .catch((err) => res.status(500).send({ message: err.message, data: 123 }));
+  /* .catch((err) => {
+     next(err);
+   });*/
 };
 
 // eslint-disable-next-line no-unused-vars

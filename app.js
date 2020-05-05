@@ -1,12 +1,15 @@
-/* eslint-disable no-unused-vars */
+require('dotenv').config();
 const path = require('path');
 const express = require('express');
-// eslint-disable-next-line import/no-extraneous-dependencies
-const mongoose = require('mongoose');
-// eslint-disable-next-line import/no-extraneous-dependencies
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const auth = require('./middlewares/auth');
+
+const { createUser, login } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
+
 const app = express();
 
 // подключаемся к серверу mongo
@@ -14,21 +17,22 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
+  //autoIndex: true
 });
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5e9c37debae22b1430657444',
-  };
-  next();
-});
+app.use(express.static(path.join(__dirname, 'public')));
 
+app.post('/signin', login);
+app.post('/signup', createUser);
+
+// авторизация
+app.use(auth);
 app.use('/users', require('./routes/users'));
-
 app.use('/cards', require('./routes/cards'));
+
 
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });

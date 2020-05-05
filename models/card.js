@@ -1,8 +1,7 @@
-// eslint-disable-next-line no-unused-vars
-const validator = require('validator');
-
-// eslint-disable-next-line import/no-extraneous-dependencies
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const isEmail = require('validator/lib/isEmail');
+const isURL = require('validator/lib/isURL');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -14,7 +13,10 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
-    validate: [validator.isURL, 'invalid URL'],
+    validate: {
+      validator: (v) => isURL(v),
+      message: 'Неправильный формат URL',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
