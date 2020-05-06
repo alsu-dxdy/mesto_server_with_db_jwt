@@ -1,16 +1,26 @@
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const auth = require('./middlewares/auth');
+
 
 const { createUser, login } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // за 15 минут
+  max: 100 // можно совершить максимум 100 запросов с одного IP
+});
+
+// подключаем rate-limiter
+app.use(limiter);
 
 // подключаемся к серверу mongo
 mongoose.connect('mongodb://localhost:27017/mestodb', {

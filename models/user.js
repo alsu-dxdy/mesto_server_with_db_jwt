@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const isEmail = require('validator/lib/isEmail');
 const isURL = require('validator/lib/isURL');
+const isLength = require('validator/lib/isLength');
 const uniqueValidator = require('mongoose-unique-validator');
 
 const userSchema = new mongoose.Schema({
@@ -33,15 +34,12 @@ const userSchema = new mongoose.Schema({
       validator: (v) => isEmail(v),
       message: 'Неправильный формат почты',
     },
-    /* index: {
-       unique: true,
-     },*/
   },
   password: {
     type: String,
     required: true,
     minlength: 8,
-    select: false // Так по умлочанию хеш пароля пользователя не будет возвращаться из базы
+    select: false, // Так по умлочанию хеш пароля пользователя не будет возвращаться из базы
   }
 });
 

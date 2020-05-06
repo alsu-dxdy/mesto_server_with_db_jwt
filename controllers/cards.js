@@ -43,9 +43,10 @@ module.exports.removeCardById = (req, res, next) => {
     .then((card) => {
       if (!card) {
         // если карта не нашлась
-        return Promise.reject(
-          new Error(`Card with ID ${req.params.cardId} does not exist`)
-        );
+        return Promise.reject({
+          status: 404,
+          message: `Card with ID ${req.params.cardId} does not exist`
+        });
       }
       const { owner } = card;
       return owner;
@@ -54,10 +55,11 @@ module.exports.removeCardById = (req, res, next) => {
       if (req.user._id === owner.toString()) {
         return Card.findByIdAndRemove(req.params.cardId);
       }
-      // если владельцы не совпали по гороскопу
-      return Promise.reject(
-        new Error('You are not owner of this card, therefore you can not delete this card')
-      );
+      // если владельцы не совпали 
+      return Promise.reject({
+        status: 403,
+        message: 'You are not owner of this card, therefore you can not delete this card'
+      });
     })
     .then(() => {
       res.send(`Card with ID ${req.params.cardId} is deleted`);
@@ -88,5 +90,7 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .then((like) => res.send({ data: like }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
 };

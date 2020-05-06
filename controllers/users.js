@@ -26,17 +26,23 @@ module.exports.getUserById = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
-  const { name, about, avatar, email } = req.body;
+  const { name, about, avatar, email, password } = req.body;
+  if (password.length < 8) {
+    return next({
+      status: 400,
+      message: 'minlength of password must be 8'
+    });
+  }
   // хешируем пароль
-  bcrypt.hash(req.body.password, 10)
-    .then(hash => User.create({
-      name, about, avatar, email,
-      password: hash, // записываем хеш в базу
-    }))
+  bcrypt.hash(password, 10)
+    .then(hash =>
+      User.create({
+        name, about, avatar, email,
+        password: hash, // записываем хеш в базу
+      }))
     .then((user) => {
       res.status(201).send({ _id: user._id, email: user.email })
     })
-    // .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.message === 'ENOTFOUND') {
         return next({ status: 404, message: 'User file not found' });
@@ -61,14 +67,26 @@ module.exports.removeUserdById = (req, res, next) => {
 
 module.exports.updateUser = (req, res) => {
   // eslint-disable-next-line max-len
-  User.findByIdAndUpdate(req.user._id, { name: req.body.name, about: req.body.about }, { new: true })
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name: req.body.name, about: req.body.about },
+    {
+      new: true, //передать обновлённый объект на вход обработчику then
+      runValidators: true,//валидировать новые данные перед записью в базу
+    })
     .then((updatedUser) => res.send({ data: updatedUser }))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 module.exports.updateAvatarUser = (req, res) => {
   // eslint-disable-next-line max-len
-  User.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, { new: true })
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar: req.body.avatar },
+    {
+      new: true, //передать обновлённый объект на вход обработчику then
+      runValidators: true,//валидировать новые данные перед записью в базу
+    })
     .then((updatedAvatarUser) => res.send({ data: updatedAvatarUser }))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
