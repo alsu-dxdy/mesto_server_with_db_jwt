@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const isEmail = require('validator/lib/isEmail');
 const isURL = require('validator/lib/isURL');
-const isLength = require('validator/lib/isLength');
 const uniqueValidator = require('mongoose-unique-validator');
 
 const userSchema = new mongoose.Schema({
@@ -40,7 +38,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 8,
     select: false, // Так по умлочанию хеш пароля пользователя не будет возвращаться из базы
-  }
+  },
 });
 
 userSchema.plugin(uniqueValidator);

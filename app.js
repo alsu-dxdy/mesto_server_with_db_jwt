@@ -1,10 +1,11 @@
+/* eslint-disable consistent-return */
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const helmet = require('helmet');
 const auth = require('./middlewares/auth');
 
 
@@ -16,8 +17,10 @@ const app = express();
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // за 15 минут
-  max: 100 // можно совершить максимум 100 запросов с одного IP
+  max: 100, // можно совершить максимум 100 запросов с одного IP
 });
+
+app.use(helmet());
 
 // подключаем rate-limiter
 app.use(limiter);
@@ -27,7 +30,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
-  //autoIndex: true
+  // autoIndex: true
 });
 
 app.use(bodyParser.json());
@@ -37,6 +40,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/signin', login);
 app.post('/signup', createUser);
+
 
 // авторизация
 app.use(auth);
@@ -53,20 +57,18 @@ app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
 
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  let status = err.status || 500;
+  const status = err.status || 500;
   let { message } = err;
   if (err.name === 'ValidationError') {
-    return res.status(400).send('ValidationError');
-  }
-
-  if (err.message.includes("owner of this card")) {
-    status = 403;
+    message = 'ValidationError';
+    return res.status(400).send({ message });
   }
 
   if (status === 500) {
     console.error(err.stack || err);
-    message = 'unexpected error';
+    message = 'unexpected error';
   }
-  res.status(status).send(message);
+  res.status(status).send({ message });
 });

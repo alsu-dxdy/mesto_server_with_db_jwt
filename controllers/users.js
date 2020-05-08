@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs'); // импортируем bcrypt
-const jwt = require('jsonwebtoken'); // 
+const jwt = require('jsonwebtoken');
+
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 // импортируем модель
@@ -25,24 +26,26 @@ module.exports.getUserById = (req, res, next) => {
     });
 };
 
+// eslint-disable-next-line consistent-return
 module.exports.createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
   if (password.length < 8) {
     return next({
       status: 400,
-      message: 'minlength of password must be 8'
+      message: 'minlength of password must be 8',
     });
   }
   // хешируем пароль
   bcrypt.hash(password, 10)
-    .then(hash =>
-      User.create({
-        name, about, avatar, email,
-        password: hash, // записываем хеш в базу
-      }))
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash, // записываем хеш в базу
+    }))
     .then((user) => {
-      res.status(201).send({ _id: user._id, email: user.email })
+      res.status(201).send({ _id: user._id, email: user.email });
     })
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.message === 'ENOTFOUND') {
         return next({ status: 404, message: 'User file not found' });
@@ -71,9 +74,10 @@ module.exports.updateUser = (req, res) => {
     req.user._id,
     { name: req.body.name, about: req.body.about },
     {
-      new: true, //передать обновлённый объект на вход обработчику then
-      runValidators: true,//валидировать новые данные перед записью в базу
-    })
+      new: true, // передать обновлённый объект на вход обработчику then
+      runValidators: true, // валидировать новые данные перед записью в базу
+    },
+  )
     .then((updatedUser) => res.send({ data: updatedUser }))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
@@ -84,9 +88,10 @@ module.exports.updateAvatarUser = (req, res) => {
     req.user._id,
     { avatar: req.body.avatar },
     {
-      new: true, //передать обновлённый объект на вход обработчику then
-      runValidators: true,//валидировать новые данные перед записью в базу
-    })
+      new: true, // передать обновлённый объект на вход обработчику then
+      runValidators: true, // валидировать новые данные перед записью в базу
+    },
+  )
     .then((updatedAvatarUser) => res.send({ data: updatedAvatarUser }))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
@@ -96,11 +101,11 @@ module.exports.login = (req, res) => {
   User.findOne({ email })
     .select('+password')
     .then((newUser) => {
-      //не нашелся - отклоняем промис
+      // не нашелся - отклоняем промис
       if (!newUser) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
       }
-      //нашелся - сравниваем хеши
+      // нашелся - сравниваем хеши
       return bcrypt.compare(password, newUser.password)
         .then((matched) => {
           if (!matched) {

@@ -43,9 +43,10 @@ module.exports.removeCardById = (req, res, next) => {
     .then((card) => {
       if (!card) {
         // если карта не нашлась
+        // eslint-disable-next-line prefer-promise-reject-errors
         return Promise.reject({
           status: 404,
-          message: `Card with ID ${req.params.cardId} does not exist`
+          message: `Card with ID ${req.params.cardId} does not exist`,
         });
       }
       const { owner } = card;
@@ -55,10 +56,11 @@ module.exports.removeCardById = (req, res, next) => {
       if (req.user._id === owner.toString()) {
         return Card.findByIdAndRemove(req.params.cardId);
       }
-      // если владельцы не совпали 
+      // если владельцы не совпали
+      // eslint-disable-next-line prefer-promise-reject-errors
       return Promise.reject({
         status: 403,
-        message: 'You are not owner of this card, therefore you can not delete this card'
+        message: 'You are not owner of this card, therefore you can not delete this card',
       });
     })
     .then(() => {
