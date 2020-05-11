@@ -1,3 +1,5 @@
+/* eslint-disable no-shadow */
+/* eslint-disable arrow-body-style */
 /* eslint-disable consistent-return */
 require('dotenv').config();
 const path = require('path');
@@ -7,11 +9,10 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const auth = require('./middlewares/auth');
-
-
 const { createUser, login } = require('./controllers/users');
-
-const { PORT = 3000 } = process.env;
+const schema = require('./schemas/signup');
+const { validate } = require('./schemas/signup'); // for joi
+const { PORT, DATABASE_URL } = require('./config');
 
 const app = express();
 
@@ -20,13 +21,15 @@ const limiter = rateLimit({
   max: 100, // можно совершить максимум 100 запросов с одного IP
 });
 
+
+// подключаем helmet
 app.use(helmet());
 
 // подключаем rate-limiter
 app.use(limiter);
 
 // подключаемся к серверу mongo
-mongoose.connect('mongodb://localhost:27017/mestodb', {
+mongoose.connect(DATABASE_URL, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
@@ -39,7 +42,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signup', validate(schema), createUser);
 
 
 // авторизация
@@ -61,12 +64,20 @@ app.listen(PORT, () => {
 app.use((err, req, res, next) => {
   const status = err.status || 500;
   let { message } = err;
+
+  if (err.message.includes('password') && err.message.includes('pattern')) {
+    message = 'Password must include symbols only from range: [a-zA-Z0-9]';
+    return res.status(400).send({ message });
+  }
+
   if (err.name === 'ValidationError') {
     message = 'ValidationError';
+    // message = err.details[0].message;
     return res.status(400).send({ message });
   }
 
   if (status === 500) {
+    // eslint-disable-next-line no-console
     console.error(err.stack || err);
     message = 'unexpected error';
   }
