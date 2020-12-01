@@ -4,7 +4,9 @@ const Card = require('../models/card');
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ cards }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      next(err);
+    });
 };
 
 module.exports.getCardById = (req, res, next) => {
@@ -19,7 +21,6 @@ module.exports.getCardById = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
-  //  next();
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -80,7 +81,7 @@ module.exports.likeCard = (req, res) => {
   )
     .then((like) => res.send({ data: like }))
     .catch((err) => {
-      res.status(500).send({ message: err.message });
+      next(err);
     });
 };
 
@@ -93,6 +94,6 @@ module.exports.dislikeCard = (req, res) => {
   )
     .then((like) => res.send({ data: like }))
     .catch((err) => {
-      res.status(500).send({ message: err.message });
+      next(err);
     });
 };
